@@ -17,17 +17,20 @@ class Game
     choose_first_player
     board.print_board
 
-    until win? or draw?
+    until win? || draw?
       self.turn_counter += 1
+      board.print_board
       check_and_choose_field
-      switch_players!
 
-      unless win?
-        #puts "\nIt's #{get_current_player.name}'s turn!"
+      if win? || draw?
+        board.print_board
+        announce_result
         break
+      else
+        puts "\nIt's #{get_current_player.name}'s turn!"
       end
+      switch_players!
     end
-    announce_result
   end
 
   def get_current_player
@@ -74,23 +77,28 @@ class Game
 
   def check_and_choose_field
 
-    puts "Please choose a free field between (1-42) to place your mark (#{self.current_player.mark_type}): "
-    chosen_field = nil
+    puts "Please choose a free row between (01-07) to drop your mark (#{self.current_player.mark_type}): "
+    chosen_row = nil
     
-    until valid_field?(chosen_field)
-      chosen_field = gets.chomp
+    until valid_field?(chosen_row)
+      chosen_row = gets.chomp
   
-      unless valid_field?(chosen_field)
-        puts "Your input is invalid or the field is already taken. Please enter a different number between 1-42: "
+      unless valid_field?(chosen_row)
+        puts "Your input is invalid or the field is already taken. Please enter a different number between 01-07: "
       end
     end
-    board.update_board!(chosen_field, self.current_player.mark_type)
+    board.drop_mark(chosen_row, self.current_player.mark_type)
   end
 
-  def valid_field?(input)
-    board.current_board.flatten.include?(input)
+  def valid_field?(chosen_row)
+    board.current_board[0].flatten.include?(chosen_row) && !board.full_row?(chosen_row)
   end
 
   def announce_result
+    if win? 
+      puts "#{current_player.name } wins!"
+    else 
+      puts "It's a draw!"
+    end
   end
 end

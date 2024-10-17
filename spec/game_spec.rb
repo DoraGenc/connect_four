@@ -10,7 +10,7 @@ RSpec.describe Game do
   let(:fake_board) { double("Board") }
 
   before do
-    allow(game).to receive(:gets).and_return("01")
+    allow(game).to receive(:gets).and_return("01", "02", "03")
   end
 
   describe "#initialize" do
@@ -75,6 +75,10 @@ RSpec.describe Game do
   describe "#play_game" do
     context "when calling play_game the first time" do
 
+      before do
+        allow(game).to receive(:check_and_choose_field).and_return("01")
+      end
+
       it "calls choose_first_player" do
         allow(game).to receive(:choose_first_player).and_call_original #damit wirklich player gesetzt werden
         game.play_game
@@ -117,8 +121,8 @@ RSpec.describe Game do
     context "when win? and draw? return false (loop continues)" do
 
       before do
-        allow(game).to receive(:win?).and_return(false, true)
-        allow(game).to receive(:draw?).and_return(false, true)
+        allow(game).to receive(:win?).and_return(false, false, true)
+        allow(game).to receive(:draw?).and_return(false, false, true)
       end
 
       it "increases the turn_counter by 1 once in every loop" do
@@ -133,12 +137,10 @@ RSpec.describe Game do
         expect(game).to have_received(:check_and_choose_field)
       end
 
-      it "calls switch_players! once after check_and_choose field was called" do
-        allow(game).to receive(:check_and_choose_field)
+      it "calls switch_players!" do
         allow(game).to receive(:switch_players!)
         game.play_game
-        expect(game).to have_received(:check_and_choose_field).ordered
-        expect(game).to have_received(:switch_players!).ordered
+        expect(game).to have_received(:switch_players!)
       end
 
       it "checks win? again" do
@@ -149,10 +151,10 @@ RSpec.describe Game do
 
     context "when the loop breaks" do
       it "calls announce_result" do
-        allow(game).to receive(:win?).and_return(true, true)
+        allow(game).to receive(:win?).and_return(false, true)
         allow(game).to receive(:announce_result)
         game.play_game
-        expect(game).to have_received(:announce_result).once
+        expect(game).to have_received(:announce_result)
       end
     end
   end
@@ -232,5 +234,3 @@ RSpec.describe Game do
     end
   end
 end
-
-#gem

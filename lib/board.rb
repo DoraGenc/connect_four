@@ -11,6 +11,15 @@ class Board
       ["29", "30", "31", "32", "33", "34", "35"],
       ["36", "37", "38", "39", "40", "41", "42"]
     ]
+
+    @initial_board = initial_board = [
+      ["01", "02", "03", "04", "05", "06", "07"],
+      ["08", "09", "10", "11", "12", "13", "14"],
+      ["15", "16", "17", "18", "19", "20", "21"],
+      ["22", "23", "24", "25", "26", "27", "28"],
+      ["29", "30", "31", "32", "33", "34", "35"],
+      ["36", "37", "38", "39", "40", "41", "42"]
+    ]
   end
 
   def print_board
@@ -18,6 +27,31 @@ class Board
     current_board.each_with_index do |row, index|
       puts row.join(' | ')
       puts "---+----+----+----+----+----+----" if index < current_board.length - 1
+    end
+  end
+
+  def full_row?(chosen_field)
+
+    column_index = initial_board[0].index(chosen_field)
+  
+    current_board.each do |row|
+      if row[column_index] == initial_board[current_board.index(row)][column_index]
+       return false
+      end
+    end
+    true
+  end
+
+  def drop_mark(chosen_row, mark_type)
+    column_index = initial_board[0].index(chosen_row)
+
+    (current_board.length - 1).downto(0) do |row_index|
+      if current_board[row_index][column_index] == initial_board[row_index][column_index]
+        field_to_replace = initial_board[row_index][column_index]
+        
+        update_board!(field_to_replace, mark_type)
+        return
+      end
     end
   end
 
@@ -105,4 +139,8 @@ class Board
     end
     false
   end
+
+  private 
+
+  attr_reader :initial_board
 end

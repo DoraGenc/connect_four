@@ -46,6 +46,102 @@ RSpec.describe Board do
     end
   end
 
+  describe "#full_row?" do
+    describe "when the board is empty" do
+      let(:empty_board) do
+        [
+          ["01", "02", "03", "04", "05", "06", "07"],
+          ["08", "09", "10", "11", "12", "13", "14"],
+          ["15", "16", "17", "18", "19", "20", "21"],
+          ["22", "23", "24", "25", "26", "27", "28"],
+          ["29", "30", "31", "32", "33", "34", "35"],
+          ["36", "37", "38", "39", "40", "41", "42"]
+        ]
+      end
+
+      before do
+        allow(board).to receive(:current_board).and_return(empty_board)
+      end
+
+      context "when giving it a chosen field" do
+        it "returns false when the row is not full" do
+          chosen_field = "01"
+          expect(board.full_row?(chosen_field)).to be false
+        end
+      end
+  end
+
+  describe "when the board is full" do
+    let(:full_board) do
+      [
+        ["XX", "02", "03", "04", "05", "06", "07"],
+        ["XX", "09", "10", "11", "12", "13", "14"],
+        ["XX", "16", "17", "18", "19", "20", "21"],
+        ["XX", "23", "24", "25", "26", "27", "28"],
+        ["XX", "30", "31", "32", "33", "34", "35"],
+        ["XX", "37", "38", "39", "40", "41", "42"]
+      ]
+    end
+
+    before do
+      allow(board).to receive(:current_board).and_return(full_board)
+    end
+
+    context "when giving it a chosen field in a full column" do
+      it "returns true when the column is full" do
+        chosen_field = "01"  # Spalte 1 ist voll, weil "XX" in der obersten Zeile ist
+        expect(board.full_row?(chosen_field)).to be true
+      end
+    end
+
+    context "when giving it a chosen field in a non-full column" do
+      it "returns false when the column is not full" do
+        chosen_field = "02"  # Spalte 2 ist nicht voll, "02" steht noch in der obersten Reihe
+        expect(board.full_row?(chosen_field)).to be false
+      end
+    end
+  end
+end
+
+  describe "#drop_mark" do
+    context "when dropping a mark" do
+
+      let(:initial_board) do
+        [
+          ["XX", "02", "03", "04", "05", "06", "07"],
+          ["XX", "09", "10", "11", "12", "13", "14"],
+          ["XX", "16", "XX", "18", "19", "20", "21"],
+          ["XX", "23", "XX", "25", "26", "27", "28"],
+          ["XX", "30", "XX", "32", "33", "34", "35"],
+          ["XX", "37", "OO", "39", "40", "41", "42"]
+        ]
+      end
+
+      before do
+        allow(board).to receive(:current_board).and_return(initial_board)
+        allow(board).to receive(:update_board!).and_call_original
+      end
+
+      it "calculates where the mark lands" do
+
+        expected_board = [
+          ["XX", "02", "03", "04", "05", "06", "07"],
+          ["XX", "09", "PP", "11", "12", "13", "14"],
+          ["XX", "16", "XX", "18", "19", "20", "21"],
+          ["XX", "23", "XX", "25", "26", "27", "28"],
+          ["XX", "30", "XX", "32", "33", "34", "35"],
+          ["XX", "37", "OO", "39", "40", "41", "42"]
+        ]
+
+        chosen_row = "03"
+        mark_type = "PP"
+
+        board.drop_mark(chosen_row, mark_type)
+        expect(board.current_board).to eq(expected_board)
+      end
+    end
+  end
+
   describe "#update_board" do
     context "when calling update_board with a chosen field number and a mark type" do
 
